@@ -1,0 +1,63 @@
+OZZ-8BIT - How To Test
+
+1. Open a terminal in the repository root:
+   C:\Users\butem\Desktop\CODES\8bit\8bit-cpu
+
+2. Run the Python test suite:
+   python -m unittest discover -s tests -v
+
+   Expected result:
+   - All tests should pass
+   - Final line should say OK
+
+3. Run the sample emulator program:
+   python -m ozzemu.emulator programs/hello_world.ozz --assemble
+
+   Expected result:
+   - Terminal prints: Hi!
+
+4. Assemble a program manually:
+   python -m ozzasm.assembler programs/counter.ozz --output build/counter.bin --listing build/counter.lst --symbols build/counter.sym
+
+   Expected result:
+   - build/counter.bin is created
+   - build/counter.lst is created
+   - build/counter.sym is created
+
+5. Generate microcode output:
+   python -m microcode.microcode_generator --format text --output build/microcode.txt
+
+   Expected result:
+   - build/microcode.txt is created
+
+6. Test the web visualizer:
+   cd web-visualizer
+   npm install
+   npm run build
+
+   Expected result:
+   - Build completes successfully
+   - dist folder is created
+
+7. Optional local preview for the frontend:
+   cd web-visualizer
+   npm run dev
+
+   Expected result:
+   - Vite starts a local dev server
+   - The page shows registers, trace, bus activity, and memory cards
+
+How to know it is working:
+
+- Python tests return OK
+- hello_world prints Hi!
+- assembler creates output files
+- microcode generator creates output files
+- frontend build succeeds
+
+How to know it is not working:
+
+- Any Python test fails
+- Emulator crashes or does not print Hi!
+- build files are not created
+- npm run build fails
