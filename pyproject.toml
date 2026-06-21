@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ozz-8bit"
+version = "0.1.0"
+description = "Educational 8-bit computer architecture with assembler, emulator, and microcode tooling."
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.setuptools.packages.find]
+include = ["ozz8bit*", "ozzasm*", "ozzemu*", "microcode*"]

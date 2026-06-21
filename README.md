@@ -1,115 +1,166 @@
-# MK1 8bit Computer
+# OZZ-8BIT
 
-Schematics and code for my home-made 8-bit CPU and its companion boards.
+An open-source educational 8-bit computer architecture designed for learning, experimentation, and modern hardware development.
 
-Articles about this project:
-
-[Hackaday.com](https://hackaday.com/2020/12/31/diy-8-bit-computer-knows-all-the-tricks/)
-
-[Hackster.io](https://www.hackster.io/news/see-inside-of-a-cpu-with-the-mk1-8bit-computer-14fa9e313c73)
-
-[InformaticaLab.com](https://blog.informaticalab.com/viaggio-allinterno-di-una-cpu-con-il-mk1-8bit-computer/)
+Author: Om Mahendra Bute  
+GitHub: `omyaaa1`
 
 ## Overview
 
-During the past month, I designed and built a programmable 8-bit CPU from scratch, out of basic series 74LS logic ICs.
+OZZ-8BIT is a ground-up architecture redesign built inside this repository after auditing the original MK1 homebrew CPU project. The result is not a rename of the legacy design. It introduces a distinct instruction set, memory map, microcode model, assembler, emulator, documentation set, tests, and project structure.
 
-This repository contains pictures, schematics, and code for this project and its companion boards.
+The legacy MK1 hardware and tooling are still present in this repository as historical reference material:
 
-* V 1.0 assembled:
+- `MK1_CPU/`
+- `bus_breakout/`
+- `eeprom_programmer/`
+- `helix_display_interface/`
+- `start9_programming_interface/`
 
-<img src="MK1_CPU/images/8bit-computer_v1.jpg" style="zoom:15%;" />
+Everything new for OZZ-8BIT lives in the new top-level directories:
 
-* V 2.0b assembled:
+- `microcode/`
+- `ozz8bit/`
+- `ozzasm/`
+- `ozzemu/`
+- `web-visualizer/`
+- `hardware/`
+- `docs/`
+- `programs/`
+- `tests/`
 
-<img src="MK1_CPU/images/8bit-computer_v2.jpg" style="zoom:15%;" />
+## OZZ-8BIT Architecture
 
-- Helix Display Interface in action:
+### Register File
 
-<img src="helix_display_interface/images/hello_world.gif"/>
+- `A`: 8-bit accumulator
+- `B`: 8-bit general purpose register
+- `X`: 16-bit index register
+- `Y`: 16-bit index register
+- `SP`: 16-bit stack pointer
+- `PC`: 16-bit program counter
+- `FLAGS`: status register
+- `TEMP`: internal temporary register
+- `IR`: instruction register
 
-* V 1.0 in action:
+### Flags
 
-**DEMO VIDEO (YouTube)**
+- `CF`: carry
+- `ZF`: zero
+- `NF`: negative
+- `OF`: overflow
+- `IF`: interrupt enable
 
-[![MK1 Computer - home-made Programmable 8bit CPU](https://img.youtube.com/vi/qSviFkpLFKI/0.jpg)](https://www.youtube.com/watch?v=qSviFkpLFKI)
+### Memory Map
 
-## Architecture
+```text
+0000-7FFF  Program memory
+8000-BFFF  Data memory
+C000-DFFF  Stack memory
+E000-FFFF  Memory-mapped I/O
+```
 
-The MK1 CPU is composed of several modules, all connected trough a common 8-bit BUS, the status of each module is shown by dedicated LEDs. 
+### Supported Operations
 
-- The clock module is designed to allow step-by-step execution; in automatic mode the clock speed can be adjusted from 1Hz up to 32KHz.
-- The computer programs are stored in RAM and the CPU can be programmed both manually, by inserting binary machine code through dip-switches, and automatically via a USB PC interface. 
-  - The Programming interface is designed to be used in conjunction with an **Arduino Nano** or the **Start9** programming board.
-  - The **Start9** programming board allows the loading of multiple programs stored on an on-board flash memory without the aid of an external computer device.
-- The Addressable memory space is 1024 byte, data, stack and code spaces are separated, the code address space is not writable. 
-- The instructions are variable-length (see **instruction-set [here](https://github.com/vascofazza/8bit-cpu/tree/master/MK1_CPU/programs/lib/mk1.cpu)**) 1 or 2 bytes long (first byte for the opcode, the second one for the argument), there are 4 general purpose registers (`A`, `B`, `C`, `D`) and a  `stack pointer` register for subroutine calls.
-- The **A**rithmetic **L**ogic **U**nit has a dedicated register for the second operand and supports the following operations:
-  - Addition
-  - Subtraction
-  - OR
-  - AND
-  - NOT
-  - Left/Right Shift
-  - Left/Right Rotation
-- The Control Unit combinatory logic is implemented using EEPROMs (see **microcode [here](https://github.com/vascofazza/8bit-cpu/blob/master/MK1_CPU/code/microcode.txt)**) whilst each instruction is realized through a variable number of micro-instruction for a maximum of 6 micro-steps per instruction, including the fetch cycle. The instruction-set  supports both direct and indirect memory access as well as absolute and conditional jumps on carry (`CF`) and zero (`ZF`) ALU flags.
-- The computation output can be visualized on a 4-digit display, with a dedicated register, able to represent positive and 2-complement negative numbers both in decimal and hexadecimal format.
-- The CPU can be extended thanks to the external BUS interface capable of handling up to 2 peripheral. The communication is bidirectional, the devices can send interrupts to the CPU to notify when new data is available. Interrupts are cleared once the data has been processed.
-  - The only available peripheral at the moment is the **Helix** display interface, an ATmega328-driven 2x16 LCD output display.
+- Data movement: `MOV`, `LOAD`, `STORE`, `PUSH`, `POP`
+- Arithmetic: `ADD`, `SUB`, `MUL`, `DIV`, `MOD`, `INC`, `DEC`, `NEG`, `ABS`
+- Logic: `AND`, `OR`, `XOR`, `NOT`
+- Shift/rotate: `SHL`, `SHR`, `ROL`, `ROR`
+- Compare: `CMP`
+- Flow control: `JMP`, `JE`, `JNE`, `JG`, `JL`, `JGE`, `JLE`, `CALL`, `RET`
+- Interrupts: `INT`, `IRET`
+- System: `NOP`, `HLT`
 
-## Structure
+## Toolchain
 
-- **MK1 CPU/**:
-  - **8bit-computer/**: KiCad project, schematics and PCB design of the **MK1 CPU**.
-  - **code/**:
-    - microcode.py: generates the binary EEPROM microcode.
-    - out_display.py: generates the binary output display EEPROM code.
-    - uploader.py: uploads a binary MK1 program to the CPU.
-    - mk1_computer_uploader/: Arduino programmer interface sketch.
-  - **assembler/**: fork of the hlorenzi's assembler, improved and customized for the MK1
-  - **programs/**: a collection of programs for the MK1 CPU plus the assembler definition
-- **start9_programming_interface/**: 
-  - **programming_interface/**: KiCad project, schematics and PCB design of the **Start9** programming board.
-  - **code/start9_programming_interface/**: Arduino code for the programming interface.
-- **helix_display_interface/**:
-  - **display_interface/**: KiCad project, schematics and PCB design of the **Helix** display interface board.
-  - **code/helix_display_interface/**: Arduino code for the display interface.
-- **eeprom_programmer/**: KiCad project, schematics and PCB design of a simple Arduino-based eeprom programmer
-- **bus_breakout/**: KiCad project, schematics and PCB design of the external bus connector breakout board.
+### Microcode
 
-## Changelog
+Abstract microcode tables and export tooling are in `microcode/`.
 
-##### V2.0d:
+```powershell
+python -m microcode.microcode_generator --format json --output build/microcode.json
+python -m microcode.microcode_export --format markdown --output MICROCODE.generated.md
+```
 
-- minor hardware revision
-- revisited PCB design
-- new memory architecture, code memory section is read-only, stack and data live on separated spaces
+### Assembler
 
-##### V2.0b:
+The OZZASM toolchain supports:
 
-- minor hardware revision
-- Variable-length instructions (1 or 2 bytes)
-- new custom assembler, thanks to https://github.com/hlorenzi/customasm
-- few new instructions
-- revisited microcode and instruction-set
+- labels
+- constants
+- macros
+- include files
+- comments
+- binary generation
+- listing files
+- symbol table export
 
-##### V2.0:
+Example:
 
-- 4 general purposes registers (A, B, C, D)
-- Stack Pointer implemented as an up-down counter
-- External interface and interrupt handling
-- Output display decodes HEX and ASCII values
-- Clock speed multipliers
-- Control Unit extended with 4 EEPROMs
-- Variable step microcode counter length (each instruction uses the minimum amount of micro-steps)
-- revisited microcode and instruction-set
+```powershell
+python -m ozzasm.assembler programs/hello_world.ozz --output build/hello_world.bin --listing build/hello_world.lst --symbols build/hello_world.sym
+```
 
-##### V1.0:
+### Emulator
 
-- Bugfixes.
-- `HL` and `STK` address signals available in the `MAR` dip-switch.
+The OZZEMU emulator supports:
 
-##### V0.1:
+- machine-code execution
+- step mode
+- breakpoints
+- register and memory inspection
+- trace logging
+- interrupt injection
 
-- Initial release
+Example:
 
+```powershell
+python -m ozzemu.emulator programs/hello_world.ozz --assemble --trace
+```
+
+## Web Visualizer
+
+`web-visualizer/` contains a React + TypeScript + Vite frontend for visualizing register state, memory, bus activity, and trace history.
+
+```powershell
+cd web-visualizer
+npm install
+npm run dev
+```
+
+## Verification
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+## Documentation
+
+- [Architecture Guide](docs/Architecture-Guide.md)
+- [Instruction Set Reference](docs/Instruction-Set-Reference.md)
+- [Assembler Guide](docs/Assembler-Guide.md)
+- [Emulator Guide](docs/Emulator-Guide.md)
+- [Hardware Guide](docs/Hardware-Guide.md)
+- [Developer Guide](docs/Developer-Guide.md)
+- [Microcode Notes](MICROCODE.md)
+- [Assembler Notes](OZZASM.md)
+- [Emulator Notes](OZZEMU.md)
+
+## Repository Forensics
+
+- [Architecture Analysis](ARCHITECTURE_ANALYSIS.md)
+- [Improvement Roadmap](IMPROVEMENT_ROADMAP.md)
+- [Fork Differences](FORK_DIFFERENCES.md)
+
+## Status
+
+This repository now contains:
+
+- a documented original architecture definition for OZZ-8BIT
+- a reference assembler implementation
+- a reference emulator implementation
+- a microcode generation model
+- a modernized repository layout
+- initial test coverage for the new software stack
+
+The hardware redesign is currently documented as a modular plan and interface contract. The legacy MK1 KiCad assets remain preserved until dedicated OZZ-8BIT schematics and PCB files are produced.

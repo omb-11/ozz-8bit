@@ -1,0 +1,7 @@
+.org 0x0000
+
+start:
+    MOV X, 0x8000
+    LOAD A, [X]
+    LOAD B, [X+1]
+    HLT

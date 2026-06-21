@@ -1,0 +1,9 @@
+.org 0x0000
+
+start:
+    MOV A, #0
+loop:
+    INC A
+    CMP A, #10
+    JL loop
+    HLT

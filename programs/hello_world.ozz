@@ -1,0 +1,12 @@
+%define CONSOLE 0xE000
+
+.org 0x0000
+
+start:
+    MOV A, #'H'
+    STORE [CONSOLE], A
+    MOV A, #'i'
+    STORE [CONSOLE], A
+    MOV A, #'!'
+    STORE [CONSOLE], A
+    HLT

@@ -1,0 +1,103 @@
+:root {
+  color-scheme: light;
+  --bg: #f4efe4;
+  --paper: rgba(255, 251, 245, 0.9);
+  --ink: #1d1d1b;
+  --accent: #d45113;
+  --muted: #6c655d;
+  --line: rgba(29, 29, 27, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(212, 81, 19, 0.18), transparent 34%),
+    linear-gradient(135deg, #efe7d7, #f8f4ec);
+  color: var(--ink);
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.hero {
+  max-width: 720px;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+.lede {
+  color: var(--muted);
+  max-width: 60ch;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 18px 50px rgba(29, 29, 27, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.registers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.register-card,
+.memory-cell {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--line);
+}
+
+.register-card span,
+.memory-cell span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.trace-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 18px;
+  }
+
+  .memory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

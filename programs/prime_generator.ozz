@@ -1,0 +1,9 @@
+.org 0x0000
+
+start:
+    MOV A, #2
+next_candidate:
+    INC A
+    CMP A, #97
+    JL next_candidate
+    HLT

@@ -1,0 +1,9 @@
+.org 0x0000
+
+start:
+    MOV A, #12
+    MOV B, #4
+    ADD A, B
+    MUL A, #3
+    SUB A, #2
+    HLT
