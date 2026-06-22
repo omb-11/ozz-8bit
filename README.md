@@ -8,7 +8,7 @@ Highlights
 - Custom 8-bit ISA with 16-bit address space and microcode-driven control.
 - Reference assembler (ozzasm) and emulator (ozzemu).
 - Microcode generator and export tooling for experimentation.
-- Web visualizer for realtime register/memory/bus views.
+- Web visualizer for realtime register/memory/bus views with live emulator connection.
 
 Quick links
 - Docs: docs/ (Architecture, Instruction set, Assembler, Emulator, Hardware, Developer)
@@ -49,11 +49,20 @@ python -m microcode.microcode_generator --format json --output build/microcode.j
 python -m microcode.microcode_export --format markdown --output MICROCODE.generated.md
 ```
 
-Web visualizer
+Web visualizer (live)
 ```bash
+# install server dependency
+pip install websockets
+
+# start the emulator websocket server (from repo root)
+python -m ozzemu.server --host 127.0.0.1 --port 8765
+
+# start the frontend dev server
 cd web-visualizer
+npm install
 npm run dev
-# open dev server at the printed URL
+
+# open the vite URL (usually http://localhost:5173) and click Connect → Load → Run/Step
 ```
 
 Run tests
@@ -70,7 +79,7 @@ Where to look in the repo
 - ozzasm/: assembler implementation and preprocessor
 - ozzemu/: emulator CPU core, memory model, debugger
 - microcode/: generation and table definitions
-- web-visualizer/: React + TypeScript UI for visualizing machine state
+- web-visualizer/: React + TypeScript UI for visualizing machine state (now with live WebSocket support)
 - hardware/: hardware design notes and modular breakdown
 
 Status
